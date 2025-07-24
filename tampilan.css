@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.loading-container {
+  text-align: center;
+}
+
+.loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #005baa;  /* BPS Biru */
+  border-right: 8px solid #f47c20; /* BPS Oranye */
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.loading-text {
+  margin-top: 15px;
+  font-size: 1.5em;
+  color: #333;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
