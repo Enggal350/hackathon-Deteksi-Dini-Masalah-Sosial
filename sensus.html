@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sensus Penduduk 2025</title>
+  <link rel="stylesheet" href="sensus.css"/>
+  <script defer src="sensus.js"></script>
+</head>
+<body>
+  <header style="background-image: url('fotosensus.png'); ">
+    <h1>BADAN PUSAT STATISTIK</h1>
+    <img src="fotosensus.png" alt="50" width="150" height="110" style="position:initial;">
+    <nav>
+      <a href="#beranda">Beranda</a>
+      <a href="#statistik">Statistik</a>
+      <a href="#formulir">Formulir</a>
+      <a href="#login">Login</a>
+      <a href="#kontak">Kontak</a>
+      <a href="#faq">FAQ</a>
+      <a href="#about">Tentang Kami</a>
+    </nav>
+  </header>
+
+  <section id="beranda" class="section" style="background-image: url(fotosensus.png); background-attachment: fixed; background-position: top; background-size: cover;">
+    <h2>Sekarang daftar sensus penduduk jadi lebih mudah</h2>
+    <p>Ikuti sensus untuk masa depan Indonesia yang lebih baik!</p>
+    <button onclick="daftar()">Daftar Sekarang</button>
+  </section>
+  <section class="hero" aria-label="Sensus Penduduk - Peta Purbalingga">
+  <div class="hero-content">
+    <div id="map" class="hero-img" role="region" aria-label="Peta Kecamatan Purbalingga"></div>
+</section>
+
+<style>
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 2rem;
+    justify-content: center;
+  }
+  .hero-content {
+    flex: 1 1 300px;
+    min-width: 280px;
+  }
+  .hero-content h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+  }
+  .hero-content p {
+    margin: 0;
+    color: #444;
+  }
+  .hero-img {
+    flex: 1 1 400px;
+    width: 100%;
+    height: 400px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  @media (max-width: 820px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-img { height: 320px; }
+    }
+  
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  const centerCoords = [-7.4190, 109.3600]; // Pusat Purbalingga
+  const map = L.map('map').setView(centerCoords, 11);
+
+  // Layer peta dasar
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  // Marker pusat
+  L.marker(centerCoords)
+    .addTo(map)
+    .bindPopup('<b>Kabupaten Purbalingga</b><br>Pusat kota.');
+
+  // Tambahkan marker merah untuk lokasi yang belum di sensus
+  const belumSensusData = [
+    {
+      name: "Desa A",
+      coords: [-7.4350, 109.3500],
+      info: "Belum dilakukan pendataan sensus."
+    },
+    {
+      name: "Desa B",
+      coords: [-7.4050, 109.3800],
+      info: "Belum dilakukan pendataan sensus."
+    }
+  ];
+
+  // Custom icon merah
+  const redIcon = L.icon({
+    iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+  });
+
+  belumSensusData.forEach(loc => {
+    L.marker(loc.coords, { icon: redIcon })
+      .addTo(map)
+      .bindPopup(`<b>${loc.name}</b><br>${loc.info}`);
+  });
+
+  // GeoJSON jika ada
+  fetch('purbalingga-kecamatan.geojson')
+    .then(r => r.json())
+    .then(data => {
+      const geojsonLayer = L.geoJSON(data, {
+        style: {
+          color: '#2b6cb0',
+          weight: 2,
+          fillOpacity: 0.1
+        },
+        onEachFeature: function (feature, layer) {
+          const name = feature.properties.nama || feature.properties.NAMOBJ || 'Kecamatan';
+          layer.bindPopup('<b>' + name + '</b>');
+        }
+      }).addTo(map);
+      map.fitBounds(geojsonLayer.getBounds());
+    })
+    .catch(() => {
+      console.log('GeoJSON tidak ditemukan, hanya marker pusat dan penanda merah.');
+    });
+
+  // Pastikan peta tetap center saat layar di-resize
+  window.addEventListener('resize', () => {
+    map.invalidateSize();
+    map.setView(centerCoords, map.getZoom());
+  });
+</script>
+<body>
+  <section class="data-container">
+            <h2>Hasil Pendataan</h2>
+            <div class="data-box">
+                <p><strong>Sudah Didata:</strong> 1.200 KK</p>
+                <p><strong>Belum Didata:</strong> 2 Desa</p>
+            </div>
+        </section>
+        <style>
+            body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+}
+
+header {
+    background: #0077b6;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+
+.data-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.data-box {
+    background: #fff;
+    display: inline-block;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info ul {
+    padding-left: 20px;
+}
+
+@media (max-width: 768px) {
+    #map {
+        height: 300px;
+    }
+}
+
+        </style>
+    <!-- Tabel: Desa yang sudah disensus -->
+    <h2>Desa / Kelurahan yang Sudah Disensus</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Nama Desa / Kelurahan</th>
+          <th>Kecamatan</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Contoh data -->
+        <tr>
+          <td>1</td>
+          <td>Karangreja</td>
+          <td>Purbalingga</td>
+          <td>Sudah Disensus</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Mrebet</td>
+          <td>Mrebet</td>
+          <td>Sudah Disensus</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Kalimanah</td>
+          <td>Kalimanah</td>
+          <td>Sudah Disensus</td>
+        </tr>
+        <!-- Tambahkan sesuai data nyata -->
+      </tbody>
+    </table>
+
+    <!-- Tabel: Desa yang belum disensus -->
+    <h2>Desa / Kelurahan yang Belum Disensus</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Nama Desa / Kelurahan</th>
+          <th>Kecamatan</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Contoh data -->
+        <tr>
+          <td>1</td>
+          <td>Desa Contoh A</td>
+          <td>Purbalingga</td>
+          <td>Belum Disensus</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Desa Contoh B</td>
+          <td>Mrebet</td>
+          <td>Belum Disensus</td>
+        </tr>
+        <!-- Tambahkan sesuai data nyata -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- JavaScript opsional jika ingin interaktif, seperti fetch data -->
+  <script>
+    // Placeholder: bisa fetch data nyata dari API internal
+    // Contoh:
+    // fetch('/api/sensus-status')
+    //   .then(res => res.json())
+    //   .then(data => renderTables(data));
+  </script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    header {
+      padding: 1.5rem;
+      background-color: #2b6cb0;
+      color: #0aae52;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    .container {
+      padding: 1.5rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .map-container {
+      position: relative;
+      width: 100%;
+      height: 50vh;
+      max-height: 450px;
+      margin-bottom: 2rem;
+      background-color: #eee; /* placeholder background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .map-container img {
+      width: auto;
+      height: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    table th, table td {
+      padding: 0.75rem;
+      border: 1px solid #000000;
+      text-align: left;
+    }
+    table th {
+      background-color: #f4f4f4cc;
+    }
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.6rem;
+      }
+      table th, table td {
+        padding: 0.5rem;
+      }
+    }
+  </style>
+   <section class="info">
+            <h2>TAHUKAH ANDA?</h2>
+            <p>
+                Badan Pusat Statistik (BPS) atau sensus penduduk adalah kegiatan pengumpulan, pengolahan, dan penyajian data mengenai jumlah,
+                distribusi, serta karakteristik penduduk suatu wilayah dalam jangka waktu tertentu.
+                Di Indonesia, sensus penduduk biasanya dilaksanakan setiap 10 tahun oleh
+                <strong>Badan Pusat Statistik (BPS)</strong> untuk mendapatkan gambaran menyeluruh
+                tentang kondisi penduduk, baik yang telah terdata maupun yang belum terdata.
+            </p>
+            <p>
+                Melalui sensus penduduk, pemerintah dapat:
+            </p>
+            <ul>
+                <li>Menentukan kebijakan pembangunan yang tepat sasaran.</li>
+                <li>Merencanakan penyediaan fasilitas umum, pendidikan, dan kesehatan.</li>
+                <li>Mengetahui jumlah penduduk yang belum terdata untuk memastikan tidak ada wilayah tertinggal.</li>
+            </ul>
+            <p>
+                Dengan mengikuti sensus, Anda turut berperan dalam membangun <strong>masa depan Indonesia yang lebih baik</strong>.
+            </p>
+        </section>
+</body>
+
+
+  <section id="statistik" class="section">
+    <h2>Statistik Penduduk</h2>
+    <canvas id="pendudukChart" width="400" height="200"></canvas>
+  </section>
+
+  <section id="formulir" class="section">
+    <h2>Formulir Sensus</h2>
+    <form id="formSensus">
+      <input type="text" placeholder="Nama Lengkap" required />
+      <input type="number" placeholder="Usia" required />
+      <input type="text" placeholder="Kecamatan" required />
+      <button type="submit">Kirim Data</button>
+    </form>
+    <p id="formMessage"></p>
+  </section>
+
+  <section id="login" class="section">
+    <h2>Login Petugas</h2>
+    <form id="loginForm">
+      <input type="text" placeholder="Username" required />
+      <input type="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <p id="loginMessage"></p>
+  </section>
+<footer class="new_footer_area bg_color">
+            <div class="new_footer_top">
+                <div class="container">
+                    <div class="row">
+                      
+                 
+                   
+                <div class="footer_bg">
+                    <div class="footer_bg_one"></div>
+                    <div class="footer_bg_two"></div>
+                </div>
+            </div>
+           
+        </footer>
+    
+    <style>
+
+
+.new_footer_area {
+    background: rgba(255, 255, 255, 0.984);
+}
+
+
+.new_footer_top {
+    padding: 120px 0px 270px;
+    position: relative;
+      overflow-x: hidden;
+}
+.new_footer_area .footer_bottom {
+    padding-top: 5px;
+    padding-bottom: 50px;
+}
+.footer_bottom {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 20px;
+    color: #7f88a6;
+    padding: 27px 0px;
+}
+.new_footer_top .company_widget p {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 28px;
+    color: #6a7695;
+    margin-bottom: 20px;
+}
+.btn_get_two:hover {
+    background: transparent;
+    color: #5e2ced;
+}
+.btn_get:hover {
+    color: #fff;
+    background: #6754e2;
+    border-color: #6754e2;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+a:hover, a:focus, .btn:hover, .btn:focus, button:hover, button:focus {
+    text-decoration: none;
+    outline: none;
+}
+
+
+
+.new_footer_top .f_widget.about-widget .f_list li a:hover {
+    color: #5e2ced;
+}
+.new_footer_top .f_widget.about-widget .f_list li {
+    margin-bottom: 11px;
+}
+.f_widget.about-widget .f_list li:last-child {
+    margin-bottom: 0px;
+}
+.f_widget.about-widget .f_list li {
+    margin-bottom: 15px;
+}
+.f_widget.about-widget .f_list {
+    margin-bottom: 0px;
+}
+.new_footer_top .f_social_icon a {
+    width: 44px;
+    height: 44px;
+    line-height: 43px;
+    background: transparent;
+    border: 1px solid #e2e2eb;
+    font-size: 24px;
+}
+.f_social_icon a {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    font-size: 14px;
+    line-height: 45px;
+    color: #858da8;
+    display: inline-block;
+    background: #ebeef5;
+    text-align: center;
+    -webkit-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    transition: all 0.2s linear;
+}
+.ti-facebook:before {
+    content: "\e741";
+}
+.ti-twitter-alt:before {
+    content: "\e74b";
+}
+.ti-vimeo-alt:before {
+    content: "\e74a";
+}
+.ti-pinterest:before {
+    content: "\e731";
+}
+
+.btn_get_two {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background: #5e2ced;
+    border-color: #5e2ced;
+    color: #fff;
+}
+
+.btn_get_two:hover {
+    background: transparent;
+    color: #5e2ced;
+}
+
+.new_footer_top .f_social_icon a:hover {
+    background: #5e2ced;
+    border-color: #5e2ced;
+  color:white;
+}
+.new_footer_top .f_social_icon a + a {
+    margin-left: 4px;
+}
+.new_footer_top .f-title {
+    margin-bottom: 30px;
+    color: #263b5e;
+}
+.f_600 {
+    font-weight: 600;
+}
+.f_size_18 {
+    font-size: 18px;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #4b505e;
+}
+.new_footer_top .f_widget.about-widget .f_list li a {
+    color: #6a7695;
+}
+
+
+.new_footer_top .footer_bg {
+    position: absolute;
+    bottom: 0;
+    background: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEigB8iI5tb8WSVBuVUGc9UjjB8O0708X7Fdic_4O1LT4CmLHoiwhanLXiRhe82yw0R7LgACQ2IhZaTY0hhmGi0gYp_Ynb49CVzfmXtYHUVKgXXpWvJ_oYT8cB4vzsnJLe3iCwuzj-w6PeYq_JaHmy_CoGoa6nw0FBo-2xLdOPvsLTh_fmYH2xhkaZ-OGQ/s16000/footer_bg.png") no-repeat scroll center 0;
+    width: 100%;
+    height: 70%;
+}
+
+.new_footer_top .footer_bg .footer_bg_one {
+    background: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEia0PYPxwT5ifToyP3SNZeQWfJEWrUENYA5IXM6sN5vLwAKvaJS1pQVu8mOFFUa_ET4JuHNTFAxKURFerJYHDUWXLXl1vDofYXuij45JZelYOjEFoCOn7E6Vxu0fwV7ACPzArcno1rYuVxGB7JY6G7__e4_KZW4lTYIaHSLVaVLzklZBLZnQw047oq5-Q/s16000/volks.gif") no-repeat center center;
+    width: 330px;
+    height: 105px;
+  background-size:100%;
+    position: absolute;
+    bottom: 0;
+    left: 30%;
+    -webkit-animation: myfirst 22s linear infinite;
+    animation: myfirst 22s linear infinite;
+}
+
+.new_footer_top .footer_bg .footer_bg_two {
+    background: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyLGwEUVwPK6Vi8xXMymsc-ZXVwLWyXhogZxbcXQYSY55REw_0D4VTQnsVzCrL7nsyjd0P7RVOI5NKJbQ75koZIalD8mqbMquP20fL3DxsWngKkOLOzoOf9sMuxlbyfkIBTsDw5WFUj-YJiI50yzgVjF8cZPHhEjkOP_PRTQXDHEq8AyWpBiJdN9SfQA/s16000/cyclist.gif") no-repeat center center;
+    width: 88px;
+    height: 100px;
+  background-size:100%;
+    bottom: 0;
+    left: 38%;
+    position: absolute;
+    -webkit-animation: myfirst 30s linear infinite;
+    animation: myfirst 30s linear infinite;
+}
+
+
+
+@-moz-keyframes myfirst {
+  0% {
+    left: -25%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@-webkit-keyframes myfirst {
+  0% {
+    left: -25%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes myfirst {
+  0% {
+    left: -25%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+</style>
+  <footer>
+    <p>© BPS - Badan Pusat Statistik 2025</p>
+  </footer>
+</body>
+</html>
