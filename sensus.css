@@ -69,3 +69,57 @@ footer {
 
   margin-top: 50px;
 }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+
+header {
+    background: #0077b6;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+#map {
+    height: 400px;
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.data-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.data-box {
+    background: #fff;
+    display: inline-block;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info ul {
+    padding-left: 20px;
+}
+
+@media (max-width: 768px) {
+    #map {
+        height: 300px;
+    }
+}
