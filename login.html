@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Panel Sensus Penduduk Purbalingga 2025</title>
+
+<!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    .card {
+      background-color: #fff;
+      border-radius: 1rem;
+      border: 1px solid #e2e8f0;
+      padding: 1rem;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .kpi {
+      background-color: #fff;
+      border-radius: 1rem;
+      padding: 1rem;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    }
+    .kpi-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-top: 0.25rem;
+    }
+    .kpi-sub {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+    .label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #475569;
+    }
+    .input {
+      width: 100%;
+      border-radius: 0.75rem;
+      border: 1px solid #cbd5e1;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      outline: none;
+    }
+    .input:focus {
+      box-shadow: 0 0 0 2px #0ea5e9;
+      border-color: #0ea5e9;
+    }
+    .btn-secondary {
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid #cbd5e1;
+      font-size: 0.875rem;
+      background-color: #fff;
+      transition: background-color 0.2s;
+    }
+    .btn-secondary:hover {
+      background-color: #f1f5f9;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      border: 1px solid #cbd5e1;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .th {
+      padding: 0.5rem 0.75rem;
+      font-weight: 500;
+    }
+    td {
+      padding: 0.5rem 0.75rem;
+      border-top: 1px solid #f1f5f9;
+    }
+    #map {
+      height: 100%;
+      min-height: 320px;
+    }
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9fafb; color: #222;
+  }
+  /* Login Page */
+  #loginPage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #2c3e50;
+    color: rgb(0, 0, 0);
+  }
+  #loginPage form {
+    background: #34495e;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    width: 320px;
+  }
+  #loginPage h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #e67e22;
+  }
+  #loginPage input[type="text"],
+  #loginPage input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 4px;
+  }
+  #loginPage button {
+    width: 100%;
+    background: #e67e22;
+    border: none;
+    padding: 12px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+  #loginPage button:hover {
+    background: #d35400;
+  }
+  #loginError {
+    color: #ff6b6b;
+    margin-bottom: 10px;
+    text-align: center;
+    display: none;
+  }
+
+  /* Hide admin panel by default */
+  #adminPanel {
+    display: none;
+  }
+
+  /* Sidebar and Main content styles */
+  .sidebar {
+    width: 240px; height: 100vh; position: fixed; top: 0; left: 0;
+    background: #2c3e50; color: white; display: flex; flex-direction: column;
+  }
+  .sidebar h2 {
+    margin: 20px; font-size: 1.5rem; font-weight: 700; letter-spacing: 1px;
+  }
+  .sidebar nav {
+    flex-grow: 1;
+  }
+  .sidebar nav a {
+    display: block; padding: 15px 25px; color: white; text-decoration: none;
+    border-left: 4px solid transparent; font-weight: 600; cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .sidebar nav a:hover, .sidebar nav a.active {
+    background: #34495e; border-left: 4px solid #e67e22;
+  }
+  .main-content {
+    margin-left: 240px; padding: 20px;
+  }
+  h1 {
+    margin-top: 0;
+    color: #e67e22;
+  }
+  .panel {
+    display: none;
+  }
+  .panel.active {
+    display: block;
+  }
+  table {
+    width: 100%; border-collapse: collapse; margin-top: 10px;
+  }
+  th, td {
+    border: 1px solid #ccc; padding: 8px 12px; text-align: left;
+  }
+  th {
+    background: #e67e22; color: white;
+  }
+  input[type="text"], input[type="email"], input[type="date"] {
+    padding: 6px; width: 100%; max-width: 300px; margin-bottom: 10px;
+    border: 1px solid #ccc; border-radius: 4px;
+  }
+  button {
+    background: #e67e22; color: white; border: none; padding: 10px 16px;
+    cursor: pointer; border-radius: 4px;
+    font-weight: 600;
+  }
+  button:hover {
+    background: #d35400;
+  }
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%; height: auto; position: relative; flex-direction: row; overflow-x: auto;
+    }
+    .sidebar nav a {
+      flex: 1 0 auto; border-left: none; border-bottom: 4px solid transparent; text-align: center; padding: 10px;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      border-left: none; border-bottom: 4px solid #e67e22; background: #34495e;
+    }
+    .main-content {
+      margin-left: 0; padding: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div id="loginPage">
+  <form id="loginForm">
+    <h2>Login Admin</h2>
+    <div id="loginError">Username atau password salah!</div>
+    <input type="text" id="username" placeholder="Username" required autocomplete="off" />
+    <input type="password" id="password" placeholder="Password" required autocomplete="off" />
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminPanel">
+  <div class="sidebar">
+    <h2>Sensus Purbalingga 2025</h2>
+    <nav>
+      <a href="#" class="active" data-panel="dashboard">Dashboard</a>
+      <a href="#" data-panel="responden">Manajemen Responden</a>
+      <a href="#" data-panel="wilayah">Manajemen Wilayah</a>
+      <a href="#" data-panel="petugas">Manajemen Petugas</a>
+      <a href="#" data-panel="laporan">Laporan & Statistik</a>
+      <a href="#" data-panel="pengguna">Manajemen Pengguna</a>
+      <a href="#" data-panel="pengaturan">Pengaturan</a>
+      <a href="#" id="logoutBtn" style="color:#e74c3c; font-weight:700; margin:10px 25px 0; cursor:pointer;">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <!-- Dashboard -->
+    <section id="dashboard" class="panel active">
+     </head>
+<body class="bg-slate-50 text-slate-800">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-emerald-500 grid place-items-center text-white font-bold">SP</div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-semibold">Dashboard Sensus Penduduk <span class="text-sky-700">Purbalingga 2025</span></h1>
+          <p class="text-xs text-slate-500">Update: <span id="lastUpdated"></span></p>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-2">
+        <input id="searchInput" type="search" placeholder="Cari kecamatan..." class="rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+        <select id="statusFilter" class="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+          <option value="ALL">Semua Status</option>
+          <option value="Sudah">Sudah didata</option>
+          <option value="Proses">Dalam proses</option>
+          <option value="Belum">Belum didata</option>
+        </select>
+        <button id="downloadCSV" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm hover:bg-slate-800">Unduh CSV</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Sidebar -->
+    <aside class="lg:col-span-3">
+      <div class="card">
+        <h2 class="card-title">Filter</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="label">Kecamatan</label>
+            <div id="kecamatanList" class="grid grid-cols-2 gap-2 max-h-64 overflow-auto"></div>
+          </div>
+          <button id="resetFilters" class="w-full btn-secondary mt-4">Reset Filter</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <section class="lg:col-span-9 space-y-6">
+
+      <!-- KPI -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="kpi"><div class="kpi-label">Total Penduduk</div><div class="kpi-value" id="kpiPopulation">-</div></div>
+        <div class="kpi"><div class="kpi-label">Kepala Keluarga</div><div class="kpi-value" id="kpiHouseholds">-</div></div>
+        <div class="kpi"><div class="kpi-label">Progres Sensus</div><div class="kpi-value" id="kpiCompletion">-</div></div>
+        <div class="kpi"><div class="kpi-label">Petugas Aktif</div><div class="kpi-value" id="kpiEnumerators">-</div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card"><h3 class="card-title">Populasi per Kecamatan</h3><canvas id="barPopulation"></canvas></div>
+        <div class="card"><h3 class="card-title">% Penyelesaian</h3><canvas id="pieCompletion"></canvas></div>
+      </div>
+      <div class="card"><h3 class="card-title">Tren Harian Pendataan</h3><canvas id="lineTrend"></canvas></div>
+
+      <!-- Map + Table -->
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="card h-[420px]"><h3 class="card-title">Peta Kecamatan</h3><div id="map" class="rounded-2xl w-full h-full"></div></div>
+        <div class="card">
+          <h3 class="card-title">Tabel Ringkas</h3>
+          <table class="min-w-full text-sm" id="tableKecamatan">
+            <thead><tr class="bg-slate-100 text-left"><th class="th">Kecamatan</th><th class="th">Populasi</th><th class="th">KK</th><th class="th">% Selesai</th><th class="th">Status</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+  </main>
+    </section>
+
+    <!-- Manajemen Responden -->
+    <section id="responden" class="panel">
+      <h1>Manajemen Responden</h1>
+      <input type="text" id="searchResponden" placeholder="Cari nama responden..." />
+      <table>
+        <thead>
+          <tr>
+            <th>NIK</th>
+            <th>Nama</th>
+            <th>Alamat</th>
+            <th>Kecamatan</th>
+            <th>Desa/Kelurahan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="respondenTableBody">
+          <tr><td>3301234567890001</td><td>Sari Wulandari</td><td>Jl. Diponegoro No.12</td><td>Kecamatan Bukateja</td><td>Desa Bukateja</td></tr>
+          <tr><td>3301234567890002</td><td>Joko Santoso</td><td>Jl. Jendral Sudirman No.34</td><td>Kecamatan Kalimanah</td><td>Kelurahan Kalimanah</td></tr>
+          <tr><td>3301234567890003</td><td>Rina Setyawati</td><td>Jl. Pahlawan No.7</td><td>Kecamatan Karangmoncol</td><td>Desa Karangmoncol</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Manajemen Wilayah -->
+    <section id="wilayah" class="panel">
+      <h1>Manajemen Wilayah Purbalingga</h1>
+      <p>Daftar Kecamatan dan Desa/Kelurahan di Kabupaten Purbalingga.</p>
+      <ul>
+        <li><strong>Kecamatan Bukateja</strong> - 12 Desa</li>
+        <li><strong>Kecamatan Kalimanah</strong> - 10 Kelurahan</li>
+        <li><strong>Kecamatan Karangmoncol</strong> - 8 Desa</li>
+        <li><strong>Kecamatan Karangreja</strong> - 15 Desa</li>
+        <li>... (total 18 kecamatan)</li>
+      </ul>
+    </section>
+
+    <!-- Manajemen Petugas -->
+    <section id="petugas" class="panel">
+      <h1>Manajemen Petugas Lapangan</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Nama Petugas</th>
+            <th>Kecamatan Tugas</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Ani Susanti</td><td>Bukateja</td><td>Aktif</td></tr>
+          <tr><td>Budi Hartono</td><td>Kalimanah</td><td>Aktif</td></tr>
+          <tr><td>Charlie Wijaya</td><td>Karangmoncol</td><td>Nonaktif</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Laporan & Statistik -->
+    <section id="laporan" class="panel">
+      <h1>Laporan & Statistik</h1>
+      <p>Ekspor data dan laporan hasil sensus Kabupaten Purbalingga.</p>
+      <button onclick="alert('Fitur export PDF belum tersedia')">Export PDF</button>
+      <button onclick="alert('Fitur export Excel belum tersedia')">Export Excel</button>
+    </section>
+
+    <!-- Manajemen Pengguna -->
+    <section id="pengguna" class="panel">
+      <h1>Manajemen Pengguna</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>adminpbg</td><td>Administrator</td><td>Aktif</td></tr>
+          <tr><td>petugasbukateja</td><td>Petugas Lapangan</td><td>Aktif</td></tr>
+          <tr><td>petugaskalimanah</td><td>Petugas Lapangan</td><td>Nonaktif</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Pengaturan -->
+    <section id="pengaturan" class="panel">
+      <h1>Pengaturan Sistem</h1>
+      <form onsubmit="event.preventDefault(); alert('Pengaturan berhasil disimpan!');">
+        <label>
+          Tanggal Mulai Sensus:<br/>
+          <input type="date" required />
+        </label><br/><br/>
+        <label>
+          Batas Waktu Sensus:<br/>
+          <input type="date" required />
+        </label><br/><br/>
+        <label>
+          Email Notifikasi Admin:<br/>
+          <input type="email" placeholder="admin@purbalinggasensus.go.id" required />
+        </label><br/><br/>
+        <button type="submit">Simpan Pengaturan</button>
+      </form>
+    </section>
+  </div>
+</div>
+
+<script>
+const validUser = {username:"adminpbg", password:"purbalingga2025"};
+const loginPage=document.getElementById("loginPage"), adminPanel=document.getElementById("adminPanel"), loginForm=document.getElementById("loginForm"), loginError=document.getElementById("loginError");
+function checkLogin(){
+  if(sessionStorage.getItem("loggedIn")==="true"){loginPage.style.display="none"; adminPanel.style.display="block"; loadRespondenTable();}
+  else{loginPage.style.display="flex"; adminPanel.style.display="none";}
+}
+loginForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  const u=loginForm.username.value.trim(), p=loginForm.password.value.trim();
+  if(u===validUser.username && p===validUser.password){sessionStorage.setItem("loggedIn","true"); loginError.style.display="none"; loginForm.reset(); checkLogin();}
+  else{loginError.style.display="block";}
+});
+document.getElementById("logoutBtn").addEventListener("click",()=>{sessionStorage.removeItem("loggedIn"); checkLogin();});
+const navLinks=document.querySelectorAll(".sidebar nav a[data-panel]"), panels=document.querySelectorAll(".panel");
+navLinks.forEach(link=>{link.addEventListener("click",e=>{e.preventDefault(); navLinks.forEach(l=>l.classList.remove("active")); panels.forEach(p=>p.classList.remove("active")); link.classList.add("active"); document.getElementById(link.getAttribute("data-panel")).classList.add("active");});});
+// Load data sensus dari localStorage ke tabel responden
+function loadRespondenTable() {
+  const tbody = document.getElementById('respondenTableBody');
+  tbody.innerHTML = "";
+
+  const dataSensus = JSON.parse(localStorage.getItem('dataSensus')) || [];
+  
+  dataSensus.forEach((data, index) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${data.nik}</td>
+      <td>${data.nama}</td>
+      <td>${data.alamat}</td>
+      <td>${data.tempatLahir}</td>
+      <td>${data.jenisKelamin}</td>
+      <td><button onclick="hapusResponden(${index})">Hapus</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+// Fungsi hapus responden
+function hapusResponden(index) {
+  let dataSensus = JSON.parse(localStorage.getItem('dataSensus')) || [];
+  if (confirm(`Apakah yakin ingin menghapus data NIK ${dataSensus[index].nik}?`)) {
+    dataSensus.splice(index, 1); // hapus 1 data
+    localStorage.setItem('dataSensus', JSON.stringify(dataSensus));
+    loadRespondenTable(); // refresh tabel
+  }
+}
+checkLogin();
+
+const kecamatanData = [
+  { name:"Purbalingga",population:73500,households:18375,completion:92,status:"Sudah",lat:-7.3886,lng:109.3631 },
+  { name:"Kalimanah",population:68200,households:17050,completion:88,status:"Proses",lat:-7.3948,lng:109.3217 },
+  { name:"Kaligondang",population:59800,households:14950,completion:85,status:"Proses",lat:-7.4179,lng:109.38 },
+  { name:"Padamara",population:45500,households:11375,completion:79,status:"Proses",lat:-7.3697,lng:109.3013 },
+  { name:"Kejobong",population:40200,households:10050,completion:73,status:"Proses",lat:-7.4332,lng:109.4508 },
+  { name:"Kemangkon",population:52000,households:13000,completion:81,status:"Proses",lat:-7.529,lng:109.3539 },
+  { name:"Karangjambu",population:22800,households:5700,completion:55,status:"Belum",lat:-7.245,lng:109.2843 },
+  { name:"Karangmoncol",population:31800,households:7950,completion:58,status:"Belum",lat:-7.2813,lng:109.3796 }
+];
+const el = id => document.getElementById(id);
+const fmt = new Intl.NumberFormat("id-ID");
+
+function updateKPIs(data){
+  el("kpiPopulation").textContent = fmt.format(data.reduce((s,d)=>s+d.population,0));
+  el("kpiHouseholds").textContent = fmt.format(data.reduce((s,d)=>s+d.households,0));
+  el("kpiCompletion").textContent = (data.reduce((s,d)=>s+d.completion,0)/data.length).toFixed(1)+"%";
+  el("kpiEnumerators").textContent = fmt.format(120+Math.floor(Math.random()*40));
+}
+function renderTable(data){
+  el("tableBody").innerHTML = data.map(d=>`<tr><td>${d.name}</td><td>${fmt.format(d.population)}</td><td>${fmt.format(d.households)}</td><td>${d.completion}</td><td>${d.status}</td></tr>`).join("");
+}
+function renderBar(data){
+  new Chart(el("barPopulation"),{type:"bar",data:{labels:data.map(d=>d.name),datasets:[{label:"Populasi",data:data.map(d=>d.population)}]}});
+}
+function renderPie(data){
+  const counts={Sudah:data.filter(d=>d.status==="Sudah").length,Proses:data.filter(d=>d.status==="Proses").length,Belum:data.filter(d=>d.status==="Belum").length};
+  new Chart(el("pieCompletion"),{type:"pie",data:{labels:Object.keys(counts),datasets:[{data:Object.values(counts)}]}});
+}
+function renderLine(){
+  const days=[...Array(30)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return d.toISOString().slice(5,10)}).reverse();
+  const vals=days.map(()=>Math.floor(500+Math.random()*500));
+  new Chart(el("lineTrend"),{type:"line",data:{labels:days,datasets:[{label:"KK disensus",data:vals,tension:.3}]}});  
+}
+function renderMap(data){
+  const map=L.map("map").setView([-7.39,109.36],10);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+  data.forEach(d=>L.circleMarker([d.lat,d.lng],{radius:8}).bindPopup(`${d.name}<br>Pop: ${fmt.format(d.population)}`).addTo(map));
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  el("lastUpdated").textContent=new Date().toLocaleString("id-ID");
+  updateKPIs(kecamatanData); renderTable(kecamatanData); renderBar(kecamatanData); renderPie(kecamatanData); renderLine(); renderMap(kecamatanData);
+  // Filter kecamatan
+  kecamatanData.forEach(d=>{el("kecamatanList").innerHTML+=`<label class="chip"><input type="checkbox" value="${d.name}" checked> ${d.name}</label>`});
+  el("resetFilters").onclick=()=>document.querySelectorAll("#kecamatanList input").forEach(cb=>cb.checked=true);
+});
+</script>
+
+</body>
+</html>
