@@ -64,3 +64,29 @@ document.getElementById('formSensus').addEventListener('submit', function(e) {
   document.getElementById('formMessage').textContent = "Terima kasih, data Anda telah dikirim!";
   this.reset();
 });
+
+// Inisialisasi peta
+var map = L.map('map').setView([-7.3274, 109.2542], 11); // contoh koordinat Purbalingga
+
+// Tambahkan tile layer dari OpenStreetMap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Data wilayah belum didata
+var belumDidata = [
+    { nama: "Desa A", koordinat: [-7.3200, 109.2400] },
+    { nama: "Desa B", koordinat: [-7.3400, 109.2600] }
+];
+
+// Marker wilayah belum didata
+belumDidata.forEach(function(desa) {
+    L.marker(desa.koordinat, {
+        icon: L.icon({
+            iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32]
+        })
+    }).addTo(map)
+    .bindPopup(`<b>${desa.nama}</b><br>Belum didata oleh petugas sensus`);
+});
