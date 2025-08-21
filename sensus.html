@@ -8,7 +8,7 @@
   <script defer src="sensus.js"></script>
   <script defer src="neon.js"></script>
 </head>
-<body>
+<body style="background-color: #f8f8f3;">
   <header style="background-image: url('fotosensus.png'); ">
     <h1>BADAN PUSAT STATISTIK</h1>
     <img src="fotosensus.png" alt="50" width="150" height="110" style="position:initial;">
@@ -19,16 +19,15 @@
       <a href="login.html">Login Admin</a>
       <a href="#kontak">Kontak</a>
       <a href="#faq">FAQ</a>
-      <a href="#about">Tentang Kami</a>
     </nav>
   </header>
 
-  <section id="beranda" class="section" style="background-image: url(fotosensus.png); background-attachment: fixed; background-position: top; background-size: cover;">
+  <section id="beranda" class="section" style=background-color:#f8f8f3;>
     <h2>Sekarang daftar sensus penduduk jadi lebih mudah</h2>
     <p>Ikuti sensus untuk masa depan Indonesia yang lebih baik!</p>
     <a href="login warga.html"><button>Daftar Sekarang</button></a>
   </section>
-  <section class="hero" aria-label="Sensus Penduduk - Peta Purbalingga">
+  <section style="background-color:#f8f8f3;"class="hero" aria-label="Sensus Penduduk - Peta Purbalingga">
   <div class="hero-content">
     <div id="map" class="hero-img" role="region" aria-label="Peta Kecamatan Purbalingga"></div>
 </section>
@@ -456,6 +455,516 @@ header {
     </form>
     <p id="loginMessage"></p>
   </section>
+
+   <section id="statistik" class="section">
+    
+    <canvas id="pendudukChart" width="400" height="200"></canvas>
+    <title>FAQ Sensus Penduduk Purbalingga 2025</title>
+  <meta name="description" content="Pertanyaan yang sering ditanyakan (FAQ) seputar Sensus Penduduk Purbalingga 2025. Temukan jawaban cepat, panduan, dan kontak bantuan resmi." />
+  <meta name="theme-color" content="#0ea5e9" />
+  <style>
+    :root{
+      --bg: #0b1220; /* dark gradient base */
+      --card: #0f172a;
+      --muted: #94a3b8;
+      --text: #e2e8f0;
+      --accent:#38bdf8;
+      --accent-2:#22d3ee;
+      --ring: rgba(56,189,248,.45);
+      --surface:#0b132b;
+      --ok:#10b981;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --shadow: 0 10px 25px rgba(2, 8, 23, .65);
+    }
+    @media(prefers-color-scheme:light){
+      :root{
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --muted: #475569;
+        --text: #0f172a;
+        --accent:#0284c7;
+        --accent-2:#06b6d4;
+        --ring: rgba(2,132,199,.25);
+        --surface:#eef2ff;
+        --shadow: 0 8px 20px rgba(2, 8, 23, .08);
+      }
+    }
+    [data-theme="light"]{
+      --bg: #f8fafc; --card:#ffffff; --muted:#475569; --text:#0f172a; --accent:#0284c7; --accent-2:#06b6d4; --ring: rgba(2,132,199,.25); --surface:#eef2ff; --shadow:0 8px 20px rgba(2,8,23,.08);
+    }
+
+    *{box-sizing:border-box}
+    html, body{height:100%}
+    body{
+      margin:0; font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text); background:
+        radial-gradient(40vw 40vw at 100% -10%, rgba(56,189,248,.15), transparent 60%),
+        radial-gradient(35vw 35vw at -10% 0%, rgba(34,211,238,.12), transparent 60%),
+        var(--bg);
+    }
+    .container{max-width:1100px; margin-inline:auto; padding: 24px;}
+
+    /* Header */
+    .hero{position:relative; overflow:hidden; border-radius:24px; padding:32px; background:linear-gradient(135deg, rgba(56,189,248,.18), rgba(34,211,238,.12)); border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow)}
+    .hero h1{margin:0 0 8px; font-size:clamp(24px, 4vw, 42px); letter-spacing:.2px}
+    .hero p{margin:0; color:var(--muted)}
+    .badge{display:inline-flex; gap:8px; align-items:center; background:rgba(255,255,255,.1); color:var(--text); border:1px solid rgba(255,255,255,.18); padding:6px 10px; border-radius:999px; font-size:12px; backdrop-filter: blur(6px)}
+
+    .tools{display:grid; grid-template-columns: 1fr; gap:12px; margin-top:18px}
+    @media(min-width:720px){.tools{grid-template-columns: 1fr auto auto}}
+
+    .search{position:relative}
+    .search input{
+      width:100%; padding:14px 44px 14px 44px; border-radius:14px; border:1px solid rgba(148,163,184,.35); outline:none; background:var(--card); color:var(--text); box-shadow:var(--shadow);
+    }
+    .search svg{position:absolute; left:14px; top:50%; transform:translateY(-50%); opacity:.7}
+
+    .toggle{display:inline-flex; align-items:center; gap:8px; padding:12px 14px; border-radius:14px; background:var(--card); border:1px solid rgba(148,163,184,.35); cursor:pointer; user-select:none}
+
+    .chips{display:flex; flex-wrap:wrap; gap:8px}
+    .chip{padding:8px 12px; border-radius:999px; border:1px solid rgba(148,163,184,.35); background:var(--card); color:var(--muted); cursor:pointer; transition:.2s}
+    .chip.active{color:var(--text); background:linear-gradient(135deg, rgba(56,189,248,.18), rgba(34,211,238,.12)); border-color:transparent}
+
+    /* Accordion */
+    .faq{margin-top:22px; display:grid; gap:12px}
+    .item{border-radius:16px; background:var(--card); border:1px solid rgba(148,163,184,.35); overflow:hidden; box-shadow:var(--shadow)}
+    .q{display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; padding:18px 18px; background:transparent; color:inherit; border:0; text-align:left; cursor:pointer}
+    .q span.category{font-size:12px; color:var(--muted); padding:4px 8px; border:1px dashed rgba(148,163,184,.4); border-radius:999px}
+    .q h3{margin:0; font-size:clamp(15px, 2.2vw, 18px)}
+    .q svg{transition: transform .25s ease}
+    .a{max-height:0; overflow:hidden; transition:max-height .35s ease; background:linear-gradient(180deg, rgba(148,163,184,.08), transparent);}
+    .a-inner{padding:0 18px 18px; color:var(--text)}
+    .item[open] .a{max-height:420px}
+    .item[open] .q svg{transform:rotate(180deg)}
+
+    .muted{color:var(--muted)}
+    .hidden{display:none !important}
+
+    /* CTA card */
+    .cta{margin-top:24px; display:grid; gap:12px; grid-template-columns:1fr;}
+    @media(min-width:760px){.cta{grid-template-columns:1fr 1fr}}
+    .card{border-radius:18px; background:linear-gradient(135deg, rgba(56,189,248,.18), rgba(34,211,238,.12)); border:1px solid rgba(255,255,255,.14); padding:18px; box-shadow:var(--shadow)}
+    .card h4{margin:0 0 6px}
+    .card p{margin:0}
+    .btn{display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; border:1px solid rgba(148,163,184,.35); background:var(--card); color:var(--text); text-decoration:none}
+
+    footer{margin:28px 0 10px; text-align:center; color:var(--muted); font-size:14px}
+
+    /* Back to top */
+    #toTop{position:fixed; right:16px; bottom:16px; padding:10px 12px; border-radius:12px; border:1px solid rgba(148,163,184,.35); background:var(--card); color:var(--text); box-shadow:var(--shadow); cursor:pointer; display:none}
+
+    /* Focus ring */
+    :is(button, a, input):focus{outline:none; box-shadow:0 0 0 3px var(--ring)}
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"Apa itu Sensus Penduduk Purbalingga 2025?","acceptedAnswer":{"@type":"Answer","text":"Kegiatan pendataan resmi oleh BPS untuk memperoleh data jumlah, komposisi, distribusi, dan karakteristik penduduk Purbalingga tahun 2025."}},
+      {"@type":"Question","name":"Kapan pelaksanaan sensus?","acceptedAnswer":{"@type":"Answer","text":"Tahap pendataan utama dijadwalkan sepanjang tahun 2025 sesuai jadwal BPS. Pantau pengumuman resmi BPS Purbalingga untuk tanggal per kecamatan/kelurahan."}},
+      {"@type":"Question","name":"Apakah data saya aman?","acceptedAnswer":{"@type":"Answer","text":"Ya. Data dilindungi Undang-Undang Statistik; digunakan hanya untuk kepentingan statistik, bersifat rahasia, dan dirilis dalam bentuk agregat."}}
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <div class="badge" aria-label="Status halaman">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l3 7h7l-5.5 4 2.5 7-7-4.5L5 20l2.5-7L2 9h7l3-7z" stroke="currentColor" stroke-width="1.5"/></svg>
+        FAQ Resmi — Purbalingga 2025
+      </div>
+      <h1>FAQ Sensus Penduduk Purbalingga 2025</h1>
+      <p class="muted">Temukan jawaban cepat tentang jadwal, cara ikut serta, keamanan data, hingga bantuan teknis. Halaman ini bersifat informatif untuk memudahkan masyarakat.</p>
+
+      <div class="tools" role="group" aria-label="Alat pencarian dan filter">
+        <label class="search" aria-label="Cari pertanyaan">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" stroke="currentColor" stroke-width="1.5"/></svg>
+          <input id="search" type="search" placeholder="Cari: jadwal, NIK, offline, petugas…" autocomplete="off" />
+        </label>
+        <label class="toggle" tabindex="0" role="switch" aria-checked="false" id="themeToggle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v2m0 14v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M3 12h2m14 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5"/></svg>
+          Tema
+        </label>
+        <div class="chips" aria-label="Kategori FAQ">
+          <button class="chip active" data-filter="all">Semua</button>
+          <button class="chip" data-filter="pendaftaran">Pendaftaran</button>
+          <button class="chip" data-filter="verifikasi">Verifikasi</button>
+          <button class="chip" data-filter="lapangan">Lapangan</button>
+          <button class="chip" data-filter="privasi">Privasi</button>
+          <button class="chip" data-filter="teknis">Teknis</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="faq" id="faq" aria-label="Daftar pertanyaan">
+      <!-- Template item -->
+      
+      <details class="item" data-cat="pendaftaran">
+        <summary class="q" aria-controls="a1" aria-expanded="false">
+          <h3>1) Apa itu Sensus Penduduk Purbalingga 2025?</h3>
+          <span class="category">Pendaftaran</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a1"><div class="a-inner">
+          Kegiatan pendataan resmi oleh Badan Pusat Statistik (BPS) untuk mendapatkan data jumlah, komposisi, distribusi, dan karakteristik penduduk di Kabupaten Purbalingga tahun 2025. Hasilnya menjadi dasar perencanaan kebijakan publik.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="pendaftaran">
+        <summary class="q" aria-controls="a2" aria-expanded="false">
+          <h3>2) Kapan pelaksanaan sensus di wilayah saya?</h3>
+          <span class="category">Pendaftaran</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a2"><div class="a-inner">
+          Pendataan utama berlangsung sepanjang tahun 2025 dengan jadwal per kecamatan/kelurahan ditetapkan oleh BPS Purbalingga. Ikuti pengumuman kelurahan/RT setempat atau kanal resmi BPS untuk tanggal tepatnya.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="pendaftaran">
+        <summary class="q" aria-controls="a3" aria-expanded="false">
+          <h3>3) Siapa saja yang harus didata?</h3>
+          <span class="category">Pendaftaran</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a3"><div class="a-inner">
+          Seluruh penduduk yang berdomisili di Purbalingga, termasuk warga dengan KTP daerah lain yang menetap &gt;6 bulan serta pendatang sementara yang tinggal saat periode pendataan.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="verifikasi">
+        <summary class="q" aria-controls="a4" aria-expanded="false">
+          <h3>4) Dokumen apa yang perlu disiapkan?</h3>
+          <span class="category">Verifikasi</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a4"><div class="a-inner">
+          Siapkan Kartu Keluarga (KK), KTP/NIK, akta kelahiran/nikah (jika ada), dan informasi pendidikan, pekerjaan, alamat lengkap. Dokumen difoto/ditunjukkan bila diminta untuk verifikasi.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="lapangan">
+        <summary class="q" aria-controls="a5" aria-expanded="false">
+          <h3>5) Bagaimana cara memastikan petugas sensus resmi?</h3>
+          <span class="category">Lapangan</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a5"><div class="a-inner">
+          Petugas membawa tanda pengenal BPS, surat tugas, rompi/topi atribut, dan perangkat resmi. Anda berhak meminta identitas dan mencocokkan nomor induk petugas melalui kanal pengecekan yang diumumkan BPS Purbalingga.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="privasi">
+        <summary class="q" aria-controls="a6" aria-expanded="false">
+          <h3>6) Apakah data saya aman dan dirahasiakan?</h3>
+          <span class="category">Privasi</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a6"><div class="a-inner">
+          Ya. Data dilindungi oleh Undang-Undang Statistik dan hanya digunakan untuk keperluan statistik. BPS tidak membagikan data individu ke pihak lain; publikasi dilakukan dalam bentuk agregat.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="teknis">
+        <summary class="q" aria-controls="a7" aria-expanded="false">
+          <h3>7) Bagaimana jika tidak berada di rumah saat petugas datang?</h3>
+          <span class="category">Teknis</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a7"><div class="a-inner">
+          Petugas akan melakukan kunjungan ulang sesuai jadwal. Anda juga dapat menghubungi ketua RT/RW atau kanal bantuan untuk menjadwalkan ulang wawancara.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="teknis">
+        <summary class="q" aria-controls="a8" aria-expanded="false">
+          <h3>8) Apakah pendataan bisa dilakukan secara online?</h3>
+          <span class="category">Teknis</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a8"><div class="a-inner">
+          Mekanisme daring akan diinformasikan jika disediakan. Bila tersedia, Anda dapat mengisi mandiri melalui tautan resmi BPS, lalu petugas melakukan verifikasi. Hindari tautan tidak resmi.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="verifikasi">
+        <summary class="q" aria-controls="a9" aria-expanded="false">
+          <h3>9) Apa yang terjadi jika ada perbedaan data KK dan kondisi aktual?</h3>
+          <span class="category">Verifikasi</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a9"><div class="a-inner">
+          Petugas akan mencatat kondisi terbaru dan memberi catatan pembaruan. Untuk administrasi kependudukan, silakan menindaklanjuti ke Dinas Dukcapil setempat sesuai prosedur yang berlaku.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="lapangan">
+        <summary class="q" aria-controls="a10" aria-expanded="false">
+          <h3>10) Apakah saya boleh menolak memberikan informasi tertentu?</h3>
+          <span class="category">Lapangan</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a10"><div class="a-inner">
+          Mohon kerja sama untuk kelengkapan data. Pertanyaan sensus dirancang mengikuti standar statistik. Bila ragu, Anda dapat menanyakan tujuan variabel kepada petugas sebelum menjawab.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="privasi">
+        <summary class="q" aria-controls="a11" aria-expanded="false">
+          <h3>11) Bagaimana jika saya terindikasi menerima telepon/tautan penipuan?</h3>
+          <span class="category">Privasi</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a11"><div class="a-inner">
+          Abaikan, jangan memberikan data pribadi, dan laporkan ke BPS Purbalingga/RT setempat. BPS tidak pernah meminta OTP atau kata sandi. Selalu cek kanal resmi.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="teknis">
+        <summary class="q" aria-controls="a12" aria-expanded="false">
+          <h3>12) Berapa lama proses wawancara sensus?</h3>
+          <span class="category">Teknis</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a12"><div class="a-inner">
+          Rata-rata 10–25 menit per rumah tangga tergantung jumlah anggota keluarga dan kelengkapan informasi.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="pendaftaran">
+        <summary class="q" aria-controls="a13" aria-expanded="false">
+          <h3>13) Apakah mahasiswa/perantau yang sedang pulang dicatat di mana?</h3>
+          <span class="category">Pendaftaran</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a13"><div class="a-inner">
+          Pencatatan mengikuti konsep tempat tinggal biasa (de jure). Jika biasanya tinggal di luar Purbalingga &gt;6 bulan, akan dicatat di tempat tinggal biasanya, bukan di alamat yang sedang dikunjungi.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="verifikasi">
+        <summary class="q" aria-controls="a14" aria-expanded="false">
+          <h3>14) Bagaimana jika ada anggota keluarga yang lahir/meninggal baru-baru ini?</h3>
+          <span class="category">Verifikasi</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a14"><div class="a-inner">
+          Sampaikan kepada petugas beserta tanggal kejadiannya. Petugas akan memperbarui komposisi rumah tangga sesuai referensi waktu sensus.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="lapangan">
+        <summary class="q" aria-controls="a15" aria-expanded="false">
+          <h3>15) Apakah ada sanksi jika menolak sensus?</h3>
+          <span class="category">Lapangan</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a15"><div class="a-inner">
+          Partisipasi sangat dianjurkan demi data akurat. Ketentuan lebih lanjut mengikuti peraturan statistik nasional. BPS mengedepankan edukasi dan pendekatan persuasif.
+        </div></div>
+      </details>
+
+      <details class="item" data-cat="teknis">
+        <summary class="q" aria-controls="a16" aria-expanded="false">
+          <h3>16) Apakah hasil sensus bisa dilihat secara individu?</h3>
+          <span class="category">Teknis</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        </summary>
+        <div class="a" id="a16"><div class="a-inner">
+          Tidak. Publikasi sensus berbentuk data agregat (kelompok/kelurahan/kecamatan/kabupaten) untuk melindungi privasi penduduk.
+        </div></div>
+      </details>
+
+    </section>
+
+    <section class="cta" aria-label="Bantuan dan informasi tambahan">
+      <div class="card">
+        <h4>Butuh bantuan cepat?</h4>
+        <p class="muted">Hubungi layanan bantuan BPS Purbalingga pada jam kerja.</p>
+        <p style="margin-top:10px">
+          <a class="btn" href="#" onclick="alert('Contoh: hubungi WhatsApp resmi BPS Purbalingga'); return false;" aria-label="Kontak WhatsApp">📱 WhatsApp</a>
+          <a class="btn" href="mailto:contoh@bps-purbalingga.go.id" aria-label="Kirim email">✉️ Email</a>
+        </p>
+      </div>
+      <div class="card">
+        <h4>Tips cepat sebelum wawancara</h4>
+        <ul style="margin:0 0 0 18px">
+          <li>Siapkan KK, KTP, dan info pendidikan/pekerjaan.</li>
+          <li>Pastikan alamat dan jumlah anggota keluarga terbaru.</li>
+          <li>Tanyakan identitas petugas sebelum wawancara.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <button id="toTop" aria-label="Kembali ke atas">▲</button>
+
+  <script>
+    // Theme toggle
+    const toggle = document.getElementById('themeToggle');
+    const applyTheme = (t)=>{document.documentElement.setAttribute('data-theme', t)};
+    const saved = localStorage.getItem('theme');
+    if(saved){applyTheme(saved)}
+    toggle?.addEventListener('click', ()=>{
+      const now = document.documentElement.getAttribute('data-theme') === 'light' ? '' : 'light';
+      if(now){localStorage.setItem('theme', now)} else {localStorage.removeItem('theme')}
+      applyTheme(now);
+    });
+
+    // Search filter
+    const search = document.getElementById('search');
+    const items = Array.from(document.querySelectorAll('.item'));
+    const chips = Array.from(document.querySelectorAll('.chip'));
+    let activeCat = 'all';
+
+    function normalize(s){return s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'');}
+
+    function applyFilter(){
+      const q = normalize(search.value.trim());
+      items.forEach(it=>{
+        const cat = it.getAttribute('data-cat');
+        const text = normalize(it.textContent);
+        const matchQ = !q || text.includes(q);
+        const matchCat = activeCat==='all' || cat===activeCat;
+        it.classList.toggle('hidden', !(matchQ && matchCat));
+      });
+    }
+
+    search?.addEventListener('input', applyFilter);
+    chips.forEach(c=>c.addEventListener('click',()=>{
+      chips.forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');
+      activeCat = c.dataset.filter;
+      applyFilter();
+    }));
+
+    // Accessible summary toggles: sync aria-expanded
+    document.querySelectorAll('details > summary.q').forEach(sum=>{
+      sum.addEventListener('click', (e)=>{
+        const det = sum.parentElement;
+        // allow default toggle then update after microtask
+        setTimeout(()=>{
+          const expanded = det.hasAttribute('open');
+          sum.setAttribute('aria-expanded', expanded);
+        },0);
+      })
+    });
+
+    // Back to top
+    const toTop = document.getElementById('toTop');
+    window.addEventListener('scroll', ()=>{
+      toTop.style.display = window.scrollY > 400 ? 'block' : 'none';
+    });
+    toTop.addEventListener('click', ()=>window.scrollTo({top:0, behavior:'smooth'}));
+
+    // Deep link support: #q=kata
+    const params = new URLSearchParams(location.hash.replace('#','?'));
+    if(params.get('q')){search.value = decodeURIComponent(params.get('q')); applyFilter();}
+  </script>
+  </section>
+
+   <section id="statistik" class="section">
+    <canvas id="pendudukChart" width="400" height="200"></canvas>
+    <style>
+    body {
+      margin: 0; font-family: system-ui, sans-serif;
+      background: #f8fafc; color: #1e293b;
+    }
+    header {
+      background-color: #f8f8f3;
+      padding: 40px 20px; text-align: center; color:#0aae52;;
+    }
+    header h1 { margin: 0; font-size: 2rem; }
+    header p { margin-top: 8px; font-size: 1.1rem; opacity: 0.9; }
+
+    .container { max-width: 1000px; margin: auto; padding: 30px 20px; }
+
+    .about {
+      display: grid; grid-template-columns: 1fr; gap: 20px;
+    }
+    .about-text {
+      background: #fff; padding: 20px; border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .about-text h2 { margin-top: 0; color: #0284c7; }
+    .about-text p { line-height: 1.6; margin-bottom: 15px; }
+
+    .about-img {
+      text-align: center;
+    }
+    .about-img img {
+      max-width: 100%; border-radius: 20px; box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+    }
+
+    .cards {
+      display: grid; gap: 16px; margin-top: 30px;
+    }
+    @media (min-width: 768px) {
+      .about { grid-template-columns: 1fr 1fr; align-items: center; }
+      .cards { grid-template-columns: repeat(3, 1fr); }
+    }
+    .card {
+      background: #fff; border-radius: 14px;
+      padding: 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: translateY(-6px); }
+    .card h3 { margin-top: 0; color: #0ea5e9; }
+    .card p { font-size: 0.9rem; color: #475569; }
+
+    footer {
+      text-align: center; padding: 20px;
+      background: #0f172a; color: #94a3b8; margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tentang Kami</h1>
+    <p>Sensus Penduduk Purbalingga 2025</p>
+  </header>
+
+  <div class="container">
+    <section class="about">
+      <div class="about-text">
+        <h2>Siapa Kami?</h2>
+        <p style="color: #000000;"> 
+          Kami adalah tim <b>Badan Pusat Statistik (BPS) Kabupaten Purbalingga</b> yang bertugas melaksanakan
+          <i>Sensus Penduduk 2025</i>. Kegiatan ini bertujuan untuk menghimpun data akurat tentang jumlah,
+          komposisi, distribusi, dan karakteristik penduduk di seluruh wilayah Purbalingga.
+        </p>
+        <p style="color: #000000;;">
+          Data yang dikumpulkan akan menjadi dasar perencanaan pembangunan, kebijakan publik, serta evaluasi program pemerintah daerah dan nasional.
+        </p>
+      </div>
+      <div class="about-img">
+        <img src="logo-bps.jpg" alt="50" width="300" height="250" style="position:initial;">
+      </div>
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <h3>Visi</h3>
+        <p>Terwujudnya data kependudukan Purbalingga yang akurat, mutakhir, dan dapat dipercaya untuk pembangunan berkelanjutan.</p>
+      </div>
+      <div class="card">
+        <h3>Misi</h3>
+        <p>Melaksanakan pendataan secara profesional, transparan, partisipatif, dan berintegritas dengan dukungan masyarakat.</p>
+      </div>
+      <div class="card">
+        <h3>Kontak</h3>
+        <p>BPS Kabupaten Purbalingga<br>
+          📍 Jl. Komisaris Noto Sumarsono No. 16<br>
+          ☎️ (0281) 891xxx<br>
+          ✉️ bps-purbalingga@bps.go.id</p>
+      </div>
+    </section>
+  </div>
+  </section>
+
 <footer class="new_footer_area bg_color">
     <div class="new_footer_top">
         <div class="container">
@@ -470,7 +979,7 @@ header {
 
 <style>
 .new_footer_area {
-    background: rgba(255, 255, 255, 0.984);
+    background: #f8f8f3;
 }
 
 .new_footer_top {
