@@ -6,7 +6,6 @@
   <title>Sensus Penduduk 2025</title>
   <link rel="stylesheet" href="sensus.css"/>
   <link rel="stylesheet" href="sensus.php"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="database.sql"/>
   <script defer src="sensus.js"></script>
   <script defer src="neon.js"></script>
@@ -17,9 +16,9 @@
     <img src="fotosensus.png" alt="50" width="150" height="110" style="position:initial;">
     <nav>
       <a href="#beranda">Beranda</a>
-      <a href="#statistik">Statistik</a>
+      <a href="#statistik">Informasi</a>
       <a href="#formulir">Formulir</a>
-      <a href="login.html">Login Admin</a>
+      <a href="login.html">Admin</a>
       <a href="#kontak">Kontak</a>
       <a href="#faq">FAQ</a>
     </nav>
@@ -153,8 +152,8 @@
   <section class="data-container">
             <h2>Hasil Pendataan</h2>
             <div class="data-box">
-                <p><strong>Sudah Didata:</strong> 1.200 KK</p>
-                <p><strong>Belum Didata:</strong> 2 Desa</p>
+                <p><strong>Sudah Didata:</strong> 54.200 KK</p>
+                <p><strong>Belum Didata:</strong> 3 Desa</p>
             </div>
         </section>
         <style>
@@ -328,13 +327,19 @@ header {
         <tr>
           <td>1</td>
           <td>Desa Contoh A</td>
-          <td>Purbalingga</td>
+          <td>Padamara</td>
           <td>Belum Disensus</td>
         </tr>
         <tr>
           <td>2</td>
           <td>Desa Contoh B</td>
-          <td>Mrebet</td>
+          <td>Kemangkon</td>
+          <td>Belum Disensus</td>
+        </tr>
+         <tr>
+          <td>3</td>
+          <td>Desa Contoh C</td>
+          <td>Mewek</td>
           <td>Belum Disensus</td>
         </tr>
         <!-- Tambahkan sesuai data nyata -->
@@ -430,12 +435,151 @@ header {
                 Dengan mengikuti sensus, Anda turut berperan dalam membangun <strong>masa depan Indonesia yang lebih baik</strong>.
             </p>
         </section>
+
+        
 </body>
-
-
   <section id="statistik" class="section">
-    <h2>Statistik Penduduk</h2>
-    <canvas id="pendudukChart" width="400" height="200"></canvas>
+  <title>Informasi & Pengumuman - Sensus Penduduk Purbalingga 2025</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      background: #f4f7fb; color: #333;
+    }
+    header {
+      background:#f8f8f3;
+      color: #0aae52;
+      padding: 20px; text-align: center;
+      font-size: 22px; font-weight: bold;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+    .search-bar {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .search-bar input {
+      width: 80%; max-width: 400px;
+      padding: 10px; border-radius: 25px;
+      border: 1px solid #ccc; font-size: 15px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #0d6efd;
+      font-size: 18px;
+    }
+    .date {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .desc {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #0d6efd;
+      color: white;
+      margin-top: 40px;
+    }
+    @media (max-width: 600px) {
+      header { font-size: 18px; }
+      .search-bar input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>📢 Informasi & Pengumuman<br>Sensus Penduduk Purbalingga 2025</header>
+
+  <div class="container">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Cari pengumuman..." onkeyup="filterPengumuman()">
+    </div>
+
+    <div class="grid" id="announcementGrid">
+      <div class="card">
+        <h3>Pembukaan Sensus Penduduk Online</h3>
+        <div class="date">20 Januari 2025</div>
+        <div class="desc">Sensus penduduk online akan dibuka mulai 1 Februari 2025. Pastikan seluruh warga mengisi data secara mandiri di website resmi.</div>
+      </div>
+
+      <div class="card">
+        <h3>Jadwal Sensus Lapangan</h3>
+        <div class="date">5 Februari 2025</div>
+        <div class="desc">Petugas sensus akan mulai turun ke lapangan pada tanggal 15 Februari 2025 untuk membantu warga yang belum mengisi data.</div>
+      </div>
+
+      <div class="card">
+        <h3>Pengumuman Bagi Warga Lansia</h3>
+        <div class="date">10 Februari 2025</div>
+        <div class="desc">Petugas khusus akan mendatangi rumah warga lansia untuk membantu proses pengisian sensus penduduk.</div>
+      </div>
+
+      <div class="card">
+        <h3>Data Harus Sesuai KTP</h3>
+        <div class="date">15 Februari 2025</div>
+        <div class="desc">Seluruh data yang dimasukkan harus sesuai dengan identitas di KTP dan KK agar tidak terjadi kesalahan pencatatan.</div>
+      </div>
+
+      <div class="card">
+        <h3>Pengumuman Hari Libur Nasional</h3>
+        <div class="date">1 Maret 2025</div>
+        <div class="desc">Pada hari libur nasional, kegiatan sensus akan diliburkan sementara dan dilanjutkan pada hari berikutnya.</div>
+      </div>
+
+      <div class="card">
+        <h3>Batas Akhir Pengisian Sensus Online</h3>
+        <div class="date">15 Maret 2025</div>
+        <div class="desc">Pengisian sensus penduduk secara online akan ditutup pada 31 Maret 2025. Segera isi data sebelum batas akhir.</div>
+      </div>
+
+      <div class="card">
+        <h3>Pembekalan Petugas Sensus</h3>
+        <div class="date">20 Maret 2025</div>
+        <div class="desc">BPS akan mengadakan pelatihan bagi petugas sensus mengenai teknik wawancara dan penggunaan aplikasi sensus digital.</div>
+      </div>
+
+      <div class="card">
+        <h3>Pengumuman Tambahan Hari Sensus</h3>
+        <div class="date">5 April 2025</div>
+        <div class="desc">Bagi warga yang belum terdata, akan ada tambahan hari sensus pada 10 - 12 April 2025.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    function filterPengumuman() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const cards = document.getElementsByClassName("card");
+      for (let i = 0; i < cards.length; i++) {
+        const text = cards[i].innerText.toLowerCase();
+        cards[i].style.display = text.includes(input) ? "block" : "none";
+      }
+    }
+  </script>
   </section>
 
   <section id="formulir" class="section">
